@@ -5,19 +5,14 @@ import statusCodes from "response-status-codes";
 import dotEnv from "dotenv";
 import Messages from "./dbMessages.js";
 import Pusher from "pusher";
+import pusherConfig from "./pusherConfig.js";
 
 //  app config
 const app = express();
 dotEnv.config();
 const port = process.env.PORT || 9000;
 
-const pusher = new Pusher({
-  appId: "1077077",
-  key: "f60cf602b053992283d4",
-  secret: "72127582ab4497b88d68",
-  cluster: "eu",
-  encrypted: true,
-});
+const pusher = new Pusher(pusherConfig);
 
 //  middlewares
 
@@ -48,7 +43,6 @@ db.once("open", () => {
   const msgCollection = db.collection("messagecontents");
   const changeStream = msgCollection.watch(); // Listener for pusher
   changeStream.on("change", (change) => {
-  
     if (change.operationType === "insert") {
       const messageDetails = change.fullDocument;
       pusher.trigger("messages", "inserted", {
@@ -66,7 +60,7 @@ db.once("open", () => {
 //  pusher
 
 pusher.trigger("my-channel", "my-event", {
-  message: "hello world",
+  message: "Pusher channel started",
 });
 
 //  API endpoint
